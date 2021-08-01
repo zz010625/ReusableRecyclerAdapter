@@ -29,6 +29,7 @@ open class ReusableRecyclerAdapter<T>(private vararg var dataList: List<T>) :
     private var itemType = 0//item类型 为每个item的layoutId
     private var bindingCallBackList = arrayListOf<Callback>()//含Binding的CallBack
     private var commonCallBackList = arrayListOf<Callback>()//含常规的CallBack
+    private var isRefresh = false//是否刷新itemCount数量
 
     /**
      * 含Binding的回调方法
@@ -96,13 +97,32 @@ open class ReusableRecyclerAdapter<T>(private vararg var dataList: List<T>) :
     }
 
     /**
+     * 当集合 size 改变时调用该方法刷新 itemCount
+     */
+    fun refresh() {
+        isRefresh = true
+        notifyDataSetChanged()
+    }
+
+    /**
      * 计算传入集合的 size 总数为ItemCount
      */
     override fun getItemCount(): Int {
+
+        //初始化ItemCount
         if (itemCount == 0) {
             dataList.forEach {
                 itemCount += it.size
             }
+        }
+
+        //刷新ItemCount
+        if (isRefresh) {
+            itemCount = 0
+            dataList.forEach {
+                itemCount += it.size
+            }
+            isRefresh = false
         }
         return itemCount
     }
